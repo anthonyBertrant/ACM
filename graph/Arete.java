@@ -5,13 +5,14 @@ import java.util.ArrayList;
 /**
  * Created by anthonybertrant on 10/11/2016.
  */
+
 public class Arete {
 
     private int poids;
     private Sommet sommet1;
     private Sommet sommet2;
 
-    /** Construit une arete entre somme1 et sommet2
+    /** Construit une arete entre sommet1 et sommet2
      * @param poids
      * @param sommet1
      * @param sommet2
@@ -42,6 +43,7 @@ public class Arete {
             add(sommet2);
         }};
     }
+
     public Sommet getSommet1() {
         return sommet1;
     }
