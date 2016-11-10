@@ -1,3 +1,5 @@
+package graph;
+
 import java.util.ArrayList;
 
 /**
@@ -50,6 +52,6 @@ public class Arete {
 
     @Override
     public String toString() {
-        return "Arete de poids " + poids + ", reliant les sommets " + sommet1 + " et " + sommet2;
+        return "graph.Arete de poids " + poids + ", reliant les sommets " + sommet1 + " et " + sommet2;
     }
 }

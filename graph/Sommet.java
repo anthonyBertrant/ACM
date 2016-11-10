@@ -1,3 +1,7 @@
+package graph;
+
+import graph.Arete;
+
 import java.util.ArrayList;
 
 /**
