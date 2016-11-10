@@ -30,6 +30,7 @@ public class Graph {
     }
 
     public boolean controleCycle(Arete areteTest, ArrayList<Arete> aretesResultat){
+        //TODO a terminer
         int j =0;
         Sommet sommet1 = areteTest.getSommet1();
         Sommet sommet2 = areteTest.getSommet2();
@@ -55,6 +56,8 @@ public class Graph {
         int i;
         for(i = 0; i < listeSommets.size()-1; ++i){
             areteTest = trouverLaPlusPetiteArete(aretes);
+
+            //TODO controler le bon fonctionnement avec controleCycle
             if(controleCycle(areteTest,aretesResultat)){
                 aretesResultat.add(areteTest); //On ajoute le plus petite arete a notre lot
                 aretes.remove(areteTest); //On la supprime des aretes disponibles
@@ -65,6 +68,8 @@ public class Graph {
     }
 
     public ArrayList<Arete> algoDePrim(){
+
+        //TODO prim
         ArrayList<Arete> aretes = this.listeAretes;
         ArrayList<Arete> aretesResultat = new ArrayList<>();
 
