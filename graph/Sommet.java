@@ -27,6 +27,10 @@ public class Sommet {
         return listeAretes;
     }
 
+    public void setArete(Arete arete){
+        listeAretes.add(arete);
+    }
+
     public void setNomSommet(int nomSommet) {
         this.nomSommet = nomSommet;
     }

@@ -21,6 +21,9 @@ public class Arete {
         this.poids = poids;
         this.sommet1 = sommet1;
         this.sommet2 = sommet2;
+
+        sommet1.setArete(this);
+        sommet2.setArete(this);
     }
 
     public Arete findLittlestArete(ArrayList<Arete> aretes){

@@ -31,7 +31,6 @@ public class Graph {
 
     public boolean controleCycle(Sommet sommet1, Sommet sommetRecherche, ArrayList<Arete> listeArete){
         //à la premiere iteration, sommet1 est un des deux sommets de l'arete, et sommetRecherche est l'autre sommet de cette arete
-        System.out.println("On est sur : " +  sommet1.toString() + " on cherche : " + sommetRecherche.toString());
             if(sommet1 == sommetRecherche) {
                 System.out.println("IL Y A UN CYCLE !\n");
                 return true;
@@ -39,16 +38,17 @@ public class Graph {
             ArrayList<Arete> listeAreteNonVerif = new ArrayList<>();
             listeAreteNonVerif.addAll(listeArete);
             for(int index = 0 ; index < listeArete.size() ; index++){
-                System.out.println("\ti : " + index + " i max : " + listeArete.size() +  " On verifie sur l'arete : " + listeArete.get(index).getSommet1().toString() + " ; " + listeArete.get(index).getSommet2().toString());
                 if(listeArete.get(index).getSommet1() == sommet1){
                     listeAreteNonVerif.remove(listeArete.get(index));
-                    System.out.println("\t\tSommet1 : On va sur : " +  listeArete.get(index).getSommet2().toString());
-                    return controleCycle(listeArete.get(index).getSommet2(), sommetRecherche, listeAreteNonVerif);
+                    if (controleCycle(listeArete.get(index).getSommet2(), sommetRecherche, listeAreteNonVerif)) {
+                        return true;
+                    }
                 }
                 else if(listeArete.get(index).getSommet2() == sommet1){
                     listeAreteNonVerif.remove(listeArete.get(index));
-                    System.out.println("\t\tSommet2 : On va sur : " +  listeArete.get(index).getSommet1().toString());
-                    return controleCycle(listeArete.get(index).getSommet1(), sommetRecherche, listeAreteNonVerif);
+                    if(controleCycle(listeArete.get(index).getSommet1(), sommetRecherche, listeAreteNonVerif)){
+                        return true;
+                    }
                 }
             }
             System.out.println("Il n'y a pas de cycle\n");
@@ -79,7 +79,7 @@ public class Graph {
         while(i < listeSommets.size()-1){ //Le nombre d'arete doit etre de nbSommet - 1
             areteTest = trouverLaPlusPetiteArete(aretes);
 
-            if(!controleCycle(areteTest.getSommet2(),areteTest.getSommet1(),aretesResultat)){
+            if(!controleCycle(areteTest.getSommet1(),areteTest.getSommet2(),aretesResultat)){
                 aretesResultat.add(areteTest); //On ajoute la plus petite arete a notre lot
                 i += 1;
             }
@@ -88,14 +88,52 @@ public class Graph {
         return aretesResultat;
     }
 
+    public ArrayList<Arete> pushArete(Sommet sommet, ArrayList<Arete> aretes){
+
+        for(int i = 0; i < sommet.getListAretes().size(); i++){
+            aretes.add(sommet.getListAretes().get(i));
+        }
+
+        return aretes;
+    }
+
     public ArrayList<Arete> algoDePrim(){
 
         //TODO prim
-        ArrayList<Arete> aretes = this.listeAretes;
-        ArrayList<Arete> aretesResultat = new ArrayList<>();
+
+        ArrayList<Arete> aretesResultat = new ArrayList<>(); //contient les aretes du graph minimal
+        ArrayList<Arete> areteDispo = new ArrayList<>(); //Aretes disponible a la selection a un instant t
+        ArrayList<Sommet> sommets = new ArrayList<>(); //contient les sommets du graph que l'on a explorer
+
+        sommets.add(listeSommets.get(4)); //selection du premier sommet
+
+        int i = 0;
+
+        while (aretesResultat.size() != listeSommets.size() - 1){
+
+            pushArete(sommets.get(i), areteDispo); //ajoute la liste des aretes d'un sommet dans notre tableau
+            areteDispo.removeAll(aretesResultat); //on supprime les chemin deja selectionner comme resultat
+
+            Arete areteSelect = trouverLaPlusPetiteArete(areteDispo);
+            if(!controleCycle(areteSelect.getSommet1(), areteSelect.getSommet2(), aretesResultat)){ //S'il n'y a pas de cycle
+                aretesResultat.add(areteSelect); //On ajoute l'arete au resultat
+                sommets.add(areteSelect.getSommet2()); //On ajoute le nouveau sommet trouvé a la liste des sommet
+                areteDispo.remove(areteSelect); //on supprime l'arete selectionnée comme resultat
+                i += 1;
+            }else{
+
+                while (controleCycle(areteSelect.getSommet1(), areteSelect.getSommet2(), aretesResultat)){ //tant que l'on a pas une arete qui ne fais pas de cycle
+                    areteDispo.remove(areteSelect); //on supprime l'arete des arete disponible
+                    areteSelect = trouverLaPlusPetiteArete(areteDispo); //On recherche la plus petite arete
+                }
+                aretesResultat.add(areteSelect); //On ajoute l'arete au resultat
+                sommets.add(areteSelect.getSommet2()); //on ajoute le sommet a la liste des sommet decouvert
+                areteDispo.remove(areteSelect); //On supprime l'arete des aretes disponible
+                i += 1;
+            }
 
 
-
+        }
         return aretesResultat;
     }
 
@@ -127,7 +165,8 @@ public class Graph {
 
         ArrayList<Arete> resultat;
 
-        resultat = graphe.algoDeKruskal();
+        //resultat = graphe.algoDeKruskal();
+        resultat = graphe.algoDePrim();
 
         for(int i = 0; i < resultat.size(); ++i){
             System.out.println(resultat.get(i).toString());
