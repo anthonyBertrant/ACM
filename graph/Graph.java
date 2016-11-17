@@ -29,52 +29,31 @@ public class Graph {
         return areteResult;
     }
 
-    public boolean controleCycle(Arete areteTest, ArrayList<Arete> aretesResultat){
-        //TODO a terminer
-        int j =0;
-        Sommet sommet1 = areteTest.getSommet1();
-        Sommet sommet2 = areteTest.getSommet2();
-
-        for(int i = 0; i < aretesResultat.size(); i++){
-            if(sommet1 == aretesResultat.get(i).getSommet1() || sommet1 == aretesResultat.get(i).getSommet2() ||
-                    sommet2 == aretesResultat.get(i).getSommet1() || sommet2 == aretesResultat.get(i).getSommet2()){
-                return false;
+    public boolean controleCycle(Sommet sommet1, Sommet sommetRecherche, ArrayList<Arete> listeArete){
+        //à la premiere iteration, sommet1 est un des deux sommets de l'arete, et sommetRecherche est l'autre sommet de cette arete
+        System.out.println("On est sur : " +  sommet1.toString() + " on cherche : " + sommetRecherche.toString());
+            if(sommet1 == sommetRecherche) {
+                System.out.println("IL Y A UN CYCLE !\n");
+                return true;
             }
-        }
-        return true;
-    }
-
-    /*---------- FONCTIONS DE TRI ----------*/
-
-    public ArrayList<Arete> algoDeKruskal(){
-        ArrayList<Arete> aretes = this.listeAretes;
-        ArrayList<Arete> aretesResultat = new ArrayList<>();
-
-        Arete areteTest;
-
-        /* On explore l'ensemble des aretes, jusqu'a ce qu'on atteigne le nb de sommet*/
-        int i;
-        for(i = 0; i < listeSommets.size()-1; ++i){
-            areteTest = trouverLaPlusPetiteArete(aretes);
-
-            //TODO controler le bon fonctionnement avec controleCycle
-            if(controleCycle(areteTest,aretesResultat)){
-                aretesResultat.add(areteTest); //On ajoute le plus petite arete a notre lot
-                aretes.remove(areteTest); //On la supprime des aretes disponibles
+            ArrayList<Arete> listeAreteNonVerif = new ArrayList<>();
+            listeAreteNonVerif.addAll(listeArete);
+            for(int index = 0 ; index < listeArete.size() ; index++){
+                System.out.println("\ti : " + index + " i max : " + listeArete.size() +  " On verifie sur l'arete : " + listeArete.get(index).getSommet1().toString() + " ; " + listeArete.get(index).getSommet2().toString());
+                if(listeArete.get(index).getSommet1() == sommet1){
+                    listeAreteNonVerif.remove(listeArete.get(index));
+                    System.out.println("\t\tSommet1 : On va sur : " +  listeArete.get(index).getSommet2().toString());
+                    return controleCycle(listeArete.get(index).getSommet2(), sommetRecherche, listeAreteNonVerif);
+                }
+                else if(listeArete.get(index).getSommet2() == sommet1){
+                    listeAreteNonVerif.remove(listeArete.get(index));
+                    System.out.println("\t\tSommet2 : On va sur : " +  listeArete.get(index).getSommet1().toString());
+                    return controleCycle(listeArete.get(index).getSommet1(), sommetRecherche, listeAreteNonVerif);
+                }
             }
-            aretes.remove(areteTest);
+            System.out.println("Il n'y a pas de cycle\n");
+            return false;
         }
-        return aretesResultat;
-    }
-
-    public ArrayList<Arete> algoDePrim(){
-
-        //TODO prim
-        ArrayList<Arete> aretes = this.listeAretes;
-        ArrayList<Arete> aretesResultat = new ArrayList<>();
-
-        return aretesResultat;
-    }
 
     public void afficherSommets(){
         for(int i = 0; i < listeSommets.size(); i++){
@@ -87,6 +66,40 @@ public class Graph {
             System.out.println(listeAretes.get(i).toString());
         }
     }
+
+    /*---------- FONCTIONS DE TRI ----------*/
+
+    public ArrayList<Arete> algoDeKruskal(){
+        ArrayList<Arete> aretes = this.listeAretes;
+        ArrayList<Arete> aretesResultat = new ArrayList<>();
+
+        Arete areteTest;
+
+        int i = 0;
+        while(i < listeSommets.size()-1){ //Le nombre d'arete doit etre de nbSommet - 1
+            areteTest = trouverLaPlusPetiteArete(aretes);
+
+            if(!controleCycle(areteTest.getSommet2(),areteTest.getSommet1(),aretesResultat)){
+                aretesResultat.add(areteTest); //On ajoute la plus petite arete a notre lot
+                i += 1;
+            }
+            aretes.remove(areteTest); //On la supprime des aretes disponibles
+        }
+        return aretesResultat;
+    }
+
+    public ArrayList<Arete> algoDePrim(){
+
+        //TODO prim
+        ArrayList<Arete> aretes = this.listeAretes;
+        ArrayList<Arete> aretesResultat = new ArrayList<>();
+
+
+
+        return aretesResultat;
+    }
+
+
 
     public static void main(String[] args){
         Graph graphe = new Graph();
@@ -112,14 +125,8 @@ public class Graph {
         graphe.addArete(16,sommet15,sommet6);
         graphe.addArete(1,sommet15,sommet19);
 
-        graphe.afficherAretes();
-        graphe.afficherSommets();
-
         ArrayList<Arete> resultat;
 
-        //System.out.println(graphe.listeSommets.size());
-
-        //System.out.println(graphe.findLittlestArete(graphe.listeAretes).toString());
         resultat = graphe.algoDeKruskal();
 
         for(int i = 0; i < resultat.size(); ++i){
