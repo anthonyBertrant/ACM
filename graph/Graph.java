@@ -1,25 +1,33 @@
 package graph;
 
+import javax.swing.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxConstants;
+import com.mxgraph.view.mxGraph;
+import javax.swing.JFrame;
 
 /**
  * Created by anthonybertrant on 10/11/2016.
+ * Description:
  */
 
-public class Graph {
+public class Graph  extends JFrame{
 
     private ArrayList<Sommet> listeSommets = new ArrayList<>();
     private ArrayList<Arete> listeAretes = new ArrayList<>();
 
-    public void addSommet(Sommet sommet){
+    private void addSommet(Sommet sommet){
         listeSommets.add(sommet);
     }
 
-    public void addArete(int poids, Sommet sommet1, Sommet sommet2){
+    private void addArete(int poids, Sommet sommet1, Sommet sommet2){
         listeAretes.add(new Arete(poids, sommet1, sommet2));
     }
 
-    public Arete trouverLaPlusPetiteArete(ArrayList<Arete> aretes){
+    private Arete trouverLaPlusPetiteArete(ArrayList<Arete> aretes){
         Arete areteResult = aretes.get(0);
         for(int i = 1; i < aretes.size(); ++i){
             if(areteResult.getPoids() > aretes.get(i).getPoids()){
@@ -29,7 +37,7 @@ public class Graph {
         return areteResult;
     }
 
-    public boolean controleCycle(Sommet sommet1, Sommet sommetRecherche, ArrayList<Arete> listeArete){
+    private boolean controleCycle(Sommet sommet1, Sommet sommetRecherche, ArrayList<Arete> listeArete){
         //à la premiere iteration, sommet1 est un des deux sommets de l'arete, et sommetRecherche est l'autre sommet de cette arete
             if(sommet1 == sommetRecherche) {
                 System.out.println("IL Y A UN CYCLE !\n");
@@ -54,6 +62,57 @@ public class Graph {
             System.out.println("Il n'y a pas de cycle\n");
             return false;
         }
+
+    private ArrayList<Arete> pushArete(Sommet sommet, ArrayList<Arete> aretes){
+        //ajoute a un tableau passé en param, la liste de toute les aretes d'un sommet
+
+        for(int i = 0; i < sommet.getListAretes().size(); i++){
+            aretes.add(sommet.getListAretes().get(i));
+        }
+
+        return aretes;
+    }
+
+    /*private void genererGraph(ArrayList<Arete> aretes){
+        ArrayList<Object> tabAretes = new ArrayList<>();
+        HashMap<Sommet,Object> tabSommets = new HashMap<Sommet,Object>();
+
+        String noArrow = mxConstants.STYLE_ENDARROW + "=none";
+
+        double anglePoint = 360/(listeSommets.size());
+
+        mxGraph graph = new mxGraph();
+        Object parent = graph.getDefaultParent();
+
+        graph.getModel().beginUpdate();
+        try
+        {
+            for(int i = 0; i < listeSommets.size(); ++i){
+                tabSommets.put(listeSommets.get(i), graph.insertVertex(parent, null, listeSommets.get(i).getNomSommet(), x,y, 80,30));
+            }
+
+            //TODO creer les aretes
+            for (int i = 0; i < listeAretes.size(); ++i){
+                tabAretes.add(graph.insertEdge(parent, null, aretes.get(i).getPoids(), tabSommets.get(aretes.get(i).getSommet1()),
+                        tabSommets.get(aretes.get(i).getSommet2()) ,noArrow));
+            }
+        }finally {
+            graph.getModel().endUpdate();
+        }
+        mxGraphComponent graphComponent = new mxGraphComponent(graph);
+        getContentPane().add(graphComponent);
+    }*/
+
+    private boolean trouverSommet(Sommet sommet,ArrayList<Sommet> sommetsList){
+        //Cherche si un sommet est present dans une list de sommets
+        for(int i = 0; i < sommetsList.size(); ++i){
+            if(sommetsList.get(i) == sommet){
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public void afficherSommets(){
         for(int i = 0; i < listeSommets.size(); i++){
@@ -88,18 +147,10 @@ public class Graph {
         return aretesResultat;
     }
 
-    public ArrayList<Arete> pushArete(Sommet sommet, ArrayList<Arete> aretes){
-
-        for(int i = 0; i < sommet.getListAretes().size(); i++){
-            aretes.add(sommet.getListAretes().get(i));
-        }
-
-        return aretes;
-    }
-
     public ArrayList<Arete> algoDePrim(){
 
-        //TODO prim
+        //TODO prim regarder au niveau de verifCycle (si le sommet que l'on veux ajouter est deja present dans nos
+        //TODO sommet deja ajoutés, on a un cycle)
 
         ArrayList<Arete> aretesResultat = new ArrayList<>(); //contient les aretes du graph minimal
         ArrayList<Arete> areteDispo = new ArrayList<>(); //Aretes disponible a la selection a un instant t
@@ -109,34 +160,36 @@ public class Graph {
 
         int i = 0;
 
+        pushArete(sommets.get(i), areteDispo); //ajoute la liste des aretes d'un sommet dans notre tableau   On est sur le sommet i
+
         while (aretesResultat.size() != listeSommets.size() - 1){
 
-            pushArete(sommets.get(i), areteDispo); //ajoute la liste des aretes d'un sommet dans notre tableau
-            areteDispo.removeAll(aretesResultat); //on supprime les chemin deja selectionner comme resultat
+            areteDispo.removeAll(aretesResultat); //on supprime les chemins deja selectionnées comme resultat
 
             Arete areteSelect = trouverLaPlusPetiteArete(areteDispo);
-            if(!controleCycle(areteSelect.getSommet1(), areteSelect.getSommet2(), aretesResultat)){ //S'il n'y a pas de cycle
-                aretesResultat.add(areteSelect); //On ajoute l'arete au resultat
-                sommets.add(areteSelect.getSommet2()); //On ajoute le nouveau sommet trouvé a la liste des sommet
-                areteDispo.remove(areteSelect); //on supprime l'arete selectionnée comme resultat
-                i += 1;
-            }else{
 
-                while (controleCycle(areteSelect.getSommet1(), areteSelect.getSommet2(), aretesResultat)){ //tant que l'on a pas une arete qui ne fais pas de cycle
-                    areteDispo.remove(areteSelect); //on supprime l'arete des arete disponible
-                    areteSelect = trouverLaPlusPetiteArete(areteDispo); //On recherche la plus petite arete
+            if(!(trouverSommet(areteSelect.getSommet1(), sommets) && trouverSommet(areteSelect.getSommet2(), sommets))){
+                aretesResultat.add(areteSelect);
+                if(trouverSommet(areteSelect.getSommet1(), sommets)){
+                    sommets.add(areteSelect.getSommet2());
+                }else{
+                    sommets.add(areteSelect.getSommet1());
                 }
-                aretesResultat.add(areteSelect); //On ajoute l'arete au resultat
-                sommets.add(areteSelect.getSommet2()); //on ajoute le sommet a la liste des sommet decouvert
-                areteDispo.remove(areteSelect); //On supprime l'arete des aretes disponible
-                i += 1;
+                areteDispo.remove(areteSelect);
+
+                if(i != listeSommets.size()){  //Si on a pas encore ajouter tout les sommets
+                    i += 1;
+                    pushArete(sommets.get(i), areteDispo); //ajoute la liste des aretes d'un sommet dans notre tableau   On est sur le sommet i
+                }
+
+            }else{
+                areteDispo.remove(areteSelect);
             }
-
-
         }
         return aretesResultat;
     }
 
+    /*---------- FIN FONCTIONS DE TRI -------*/
 
 
     public static void main(String[] args){
@@ -168,9 +221,11 @@ public class Graph {
         //resultat = graphe.algoDeKruskal();
         resultat = graphe.algoDePrim();
 
-        for(int i = 0; i < resultat.size(); ++i){
-            System.out.println(resultat.get(i).toString());
+        for (Arete aResultat : resultat) {
+            System.out.println(aResultat.toString());
         }
+
+        //genererGraph(resultat);
 
     }
 }
