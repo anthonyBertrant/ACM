@@ -160,7 +160,7 @@ public class Graph  extends JFrame{
 
         int i = 0;
 
-        pushArete(sommets.get(i), areteDispo); //ajoute la liste des aretes d'un sommet dans notre tableau   On est sur le sommet i
+        pushArete(sommets.get(i), areteDispo); //ajoute la liste des  aretes d'un sommet dans notre tableau   On est sur le sommet i
 
         while (aretesResultat.size() != listeSommets.size() - 1){
 
