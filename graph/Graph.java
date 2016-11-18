@@ -2,19 +2,15 @@ package graph;
 
 import javax.swing.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.util.mxConstants;
-import com.mxgraph.view.mxGraph;
-import javax.swing.JFrame;
+import org.graphstream.graph.*;
+import org.graphstream.graph.implementations.SingleGraph;
 
 /**
  * Created by anthonybertrant on 10/11/2016.
  * Description:
  */
 
-public class Graph  extends JFrame{
+public class Graph{
 
     private ArrayList<Sommet> listeSommets = new ArrayList<>();
     private ArrayList<Arete> listeAretes = new ArrayList<>();
@@ -73,35 +69,30 @@ public class Graph  extends JFrame{
         return aretes;
     }
 
-    /*private void genererGraph(ArrayList<Arete> aretes){
-        ArrayList<Object> tabAretes = new ArrayList<>();
-        HashMap<Sommet,Object> tabSommets = new HashMap<Sommet,Object>();
+    private void genererGraph(ArrayList<Arete> aretes){
 
-        String noArrow = mxConstants.STYLE_ENDARROW + "=none";
-
-        double anglePoint = 360/(listeSommets.size());
-
-        mxGraph graph = new mxGraph();
-        Object parent = graph.getDefaultParent();
-
-        graph.getModel().beginUpdate();
-        try
-        {
-            for(int i = 0; i < listeSommets.size(); ++i){
-                tabSommets.put(listeSommets.get(i), graph.insertVertex(parent, null, listeSommets.get(i).getNomSommet(), x,y, 80,30));
-            }
-
-            //TODO creer les aretes
-            for (int i = 0; i < listeAretes.size(); ++i){
-                tabAretes.add(graph.insertEdge(parent, null, aretes.get(i).getPoids(), tabSommets.get(aretes.get(i).getSommet1()),
-                        tabSommets.get(aretes.get(i).getSommet2()) ,noArrow));
-            }
-        }finally {
-            graph.getModel().endUpdate();
+        org.graphstream.graph.Graph graphique = new SingleGraph("Tutorial 1");
+        for(int i = 0; i < listeSommets.size(); i++){
+            graphique.addNode(listeSommets.get(i).toString());
         }
-        mxGraphComponent graphComponent = new mxGraphComponent(graph);
-        getContentPane().add(graphComponent);
-    }*/
+
+        for(int i = 0; i < aretes.size(); i++) {
+            graphique.addEdge(aretes.get(i).toStringPoid(), aretes.get(i).getSommet1().toString(), aretes.get(i).getSommet2().toString());
+        }
+
+
+        System.out.println("YOLO = " + aretes.get(0).toString() + " som1: " + aretes.get(0).getSommet1().toString() + " som2: " +aretes.get(0).getSommet2().toString()); //OK
+
+        for (Node node : graphique) {
+            node.addAttribute("ui.label", node.getId());
+        }
+
+        for(Edge e:graphique.getEachEdge()) {
+            e.addAttribute("ui.label", e.getId());
+        }
+
+        graphique.display();
+    }
 
     private boolean trouverSommet(Sommet sommet,ArrayList<Sommet> sommetsList){
         //Cherche si un sommet est present dans une list de sommets
@@ -225,7 +216,7 @@ public class Graph  extends JFrame{
             System.out.println(aResultat.toString());
         }
 
-        //genererGraph(resultat);
+        graphe.genererGraph(resultat);
 
     }
 }

@@ -41,6 +41,6 @@ public class Sommet {
 
     @Override
     public String toString() {
-        return "" + nomSommet;
+        return String.valueOf(nomSommet);
     }
 }
