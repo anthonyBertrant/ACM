@@ -81,13 +81,11 @@ public class Graph{
         }
 
 
-        System.out.println("YOLO = " + aretes.get(0).toString() + " som1: " + aretes.get(0).getSommet1().toString() + " som2: " +aretes.get(0).getSommet2().toString()); //OK
-
-        for (Node node : graphique) {
+        for (Node node : graphique) { //Afficher le nom des noeud
             node.addAttribute("ui.label", node.getId());
         }
 
-        for(Edge e:graphique.getEachEdge()) {
+        for(Edge e:graphique.getEachEdge()) { //Afficher le poid des aretes
             e.addAttribute("ui.label", e.getId());
         }
 
