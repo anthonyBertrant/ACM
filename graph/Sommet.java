@@ -1,12 +1,12 @@
 package graph;
 
-import graph.Arete;
-
 import java.util.ArrayList;
 
 /**
  * Created by anthonybertrant on 10/11/2016.
+ * Description: Classe de creation et gestion d'un sommet d'un eventuel graph.
  */
+
 public class Sommet {
 
     private int nomSommet;

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 /**
  * Created by anthonybertrant on 10/11/2016.
+ * Description: Classe aretes. Genere un type arete pour relier des sommet d'un eventuel graph
  */
 
 public class Arete {
@@ -57,10 +58,9 @@ public class Arete {
         return sommet2;
     }
 
-    /*@Override
-    public String toString() {
+    public String toStringDev() {
         return "graph.Arete de poids " + poids + ", reliant les sommets " + sommet1 + " et " + sommet2;
-    }*/
+    }
 
     @Override
     public String toString() {

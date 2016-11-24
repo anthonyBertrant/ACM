@@ -1,13 +1,14 @@
 package graph;
 
-import javax.swing.*;
-import java.util.ArrayList;
 import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.SingleGraph;
 
+import java.util.ArrayList;
+import java.util.Scanner;
+
 /**
  * Created by anthonybertrant on 10/11/2016.
- * Description:
+ * Description: Classe Graph. Contient notre graph, composé de sommet et d'aretes
  */
 
 public class Graph{
@@ -77,16 +78,21 @@ public class Graph{
         }
 
         for(int i = 0; i < aretes.size(); i++) {
-            graphique.addEdge(aretes.get(i).toStringPoid(), aretes.get(i).getSommet1().toString(), aretes.get(i).getSommet2().toString());
+            //graphique.addEdge(aretes.get(i).toStringPoid(), aretes.get(i).getSommet1().toString(), aretes.get(i).getSommet2().toString());
+            graphique.addEdge(String.valueOf(i), aretes.get(i).getSommet1().toString(), aretes.get(i).getSommet2().toString())
+                     .addAttribute(String.valueOf(i),aretes.get(i).toStringPoid());
+
         }
 
 
         for (Node node : graphique) { //Afficher le nom des noeud
             node.addAttribute("ui.label", node.getId());
         }
-
+        int i = 0;
         for(Edge e:graphique.getEachEdge()) { //Afficher le poid des aretes
-            e.addAttribute("ui.label", e.getId());
+            //e.addAttribute("ui.label", e.getId());
+            e.addAttribute("ui.label", e.getAttribute(String.valueOf(i)));
+            ++i;
         }
 
         graphique.display();
@@ -184,34 +190,66 @@ public class Graph{
     public static void main(String[] args){
         Graph graphe = new Graph();
 
-        Sommet sommet5 = new Sommet(5);
-        Sommet sommet6 = new Sommet(6);
-        Sommet sommet8 = new Sommet(8);
+        Sommet sommet5  = new Sommet(5);
+        Sommet sommet6  = new Sommet(6);
+        Sommet sommet8  = new Sommet(8);
         Sommet sommet19 = new Sommet(19);
         Sommet sommet15 = new Sommet(15);
+        Sommet sommet12 = new Sommet(12);
+        Sommet sommet32 = new Sommet(32);
+        Sommet sommet42 = new Sommet(42);
 
         graphe.addSommet(sommet5);
         graphe.addSommet(sommet6);
         graphe.addSommet(sommet8);
         graphe.addSommet(sommet19);
         graphe.addSommet(sommet15);
+        graphe.addSommet(sommet12);
+        graphe.addSommet(sommet32);
+        graphe.addSommet(sommet42);
+
+        graphe.addArete(2 ,sommet19 ,sommet8);
+        graphe.addArete(6 ,sommet19 ,sommet5);
+        graphe.addArete(3 ,sommet5  ,sommet8);
+        graphe.addArete(12,sommet6  ,sommet8);
+        graphe.addArete(14,sommet6  ,sommet5);
+        graphe.addArete(16,sommet15 ,sommet6);
+        graphe.addArete(1 ,sommet15 ,sommet19);
+        graphe.addArete(4 ,sommet32 ,sommet42);
+        graphe.addArete(19,sommet42 ,sommet19);
+        graphe.addArete(7 ,sommet12 ,sommet42);
+        graphe.addArete(13,sommet12 ,sommet8);
+        graphe.addArete(18,sommet32 ,sommet15);
+        graphe.addArete(18,sommet6 ,sommet42);
 
 
-        graphe.addArete(2,sommet19,sommet8);
-        graphe.addArete(6,sommet19,sommet5);
-        graphe.addArete(3,sommet5,sommet8);
-        graphe.addArete(12,sommet6,sommet8);
-        graphe.addArete(14,sommet6,sommet5);
-        graphe.addArete(16,sommet15,sommet6);
-        graphe.addArete(1,sommet15,sommet19);
+        ArrayList<Arete> resultat = new ArrayList<>();
 
-        ArrayList<Arete> resultat;
+        int choix = 0;
 
-        //resultat = graphe.algoDeKruskal();
-        resultat = graphe.algoDePrim();
+        System.out.println("Entrer votre choix: 0 pour Kruskal, 1 pour Prim, 2 pour afficher le graph brute: ");
+        Scanner sc = new Scanner(System.in);
+        choix = sc.nextInt();
+
+        switch(choix){
+            case 0:
+                resultat = graphe.algoDeKruskal();
+                break;
+
+            case 1:
+                resultat = graphe.algoDePrim();
+                break;
+
+            case 2:
+                resultat = graphe.listeAretes;
+                break;
+
+            default:
+                break;
+        }
 
         for (Arete aResultat : resultat) {
-            System.out.println(aResultat.toString());
+            System.out.println(aResultat.toStringDev());
         }
 
         graphe.genererGraph(resultat);
