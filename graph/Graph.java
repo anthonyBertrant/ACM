@@ -225,7 +225,7 @@ public class Graph{
 
         ArrayList<Arete> resultat = new ArrayList<>();
 
-        int choix = 0;
+        int choix;
 
         System.out.println("Entrer votre choix: 0 pour Kruskal, 1 pour Prim, 2 pour afficher le graph brute: ");
         Scanner sc = new Scanner(System.in);
