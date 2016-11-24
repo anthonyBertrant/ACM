@@ -6,6 +6,8 @@ import org.graphstream.graph.implementations.SingleGraph;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import static java.util.Collections.swap;
+
 /**
  * Created by anthonybertrant on 10/11/2016.
  * Description: Classe Graph. Contient notre graph, composé de sommet et d'aretes
@@ -15,6 +17,63 @@ public class Graph{
 
     private ArrayList<Sommet> listeSommets = new ArrayList<>();
     private ArrayList<Arete> listeAretes = new ArrayList<>();
+
+    private class ArrayListTas{
+        private ArrayList<Arete> tasAretes;
+
+        public ArrayListTas() {
+            this.tasAretes = new ArrayList<>();
+        }
+
+        public void add(Arete arete){
+            tasAretes.add(arete);
+        }
+
+        public void remove(Arete arete){
+            tasAretes.remove(arete);
+        }
+
+        public void removeAll(ArrayList<Arete> aretes){
+            tasAretes.removeAll(aretes);
+        }
+
+        public Arete get(int index){
+            return tasAretes.get(index);
+        }
+
+        public void remove(int index){ tasAretes.remove(index);}
+
+        private void TriTas(){
+            organiserTas();
+            for(int i = tasAretes.size()-1; i != 0; --i ){
+                swap(tasAretes,0, i);
+                descendre(0, i);
+            }
+        }
+
+        private void organiserTas(){
+            for(int i = tasAretes.size()/2; i >= 0; --i)
+                descendre(i, tasAretes.size());
+        }
+
+        private void descendre(int d, int f){
+            int fg, fd, fm;
+            if(d*2+1 < f) {
+                fg = 2*d+1;
+                fd = 2*d+2;
+                if(fd>=f) fm = fg;
+                else
+                if (tasAretes.get(fg).getPoids() > tasAretes.get(fd).getPoids()) fm = fg; else fm = fd;
+                if( tasAretes.get(d).getPoids() > tasAretes.get(fm).getPoids()) {
+                    return;
+                }
+                else{
+                    swap(tasAretes,d,fm);
+                    descendre(fm, f);
+                }
+            }
+        }
+    }
 
     private void addSommet(Sommet sommet){
         listeSommets.add(sommet);
@@ -61,6 +120,17 @@ public class Graph{
         }
 
     private ArrayList<Arete> pushArete(Sommet sommet, ArrayList<Arete> aretes){
+        //ajoute a un tableau passé en param, la liste de toute les aretes d'un sommet
+
+        for(int i = 0; i < sommet.getListAretes().size(); i++){
+            aretes.add(sommet.getListAretes().get(i));
+        }
+
+        return aretes;
+    }
+
+    //Version de pushArete pour le tas. Seul le type change.
+    private ArrayListTas pushAreteTas(Sommet sommet, ArrayListTas aretes){
         //ajoute a un tableau passé en param, la liste de toute les aretes d'un sommet
 
         for(int i = 0; i < sommet.getListAretes().size(); i++){
@@ -144,14 +214,11 @@ public class Graph{
 
     public ArrayList<Arete> algoDePrim(){
 
-        //TODO prim regarder au niveau de verifCycle (si le sommet que l'on veux ajouter est deja present dans nos
-        //TODO sommet deja ajoutés, on a un cycle)
-
         ArrayList<Arete> aretesResultat = new ArrayList<>(); //contient les aretes du graph minimal
         ArrayList<Arete> areteDispo = new ArrayList<>(); //Aretes disponible a la selection a un instant t
         ArrayList<Sommet> sommets = new ArrayList<>(); //contient les sommets du graph que l'on a explorer
 
-        sommets.add(listeSommets.get(4)); //selection du premier sommet
+        sommets.add(listeSommets.get(4)); //selection d'un sommet, ici le 5eme
 
         int i = 0;
 
@@ -184,6 +251,46 @@ public class Graph{
         return aretesResultat;
     }
 
+    public ArrayList<Arete> algoDePrimParTas(){
+        ArrayList<Arete> aretesResultat = new ArrayList<>(); //contient les aretes du graph minimal
+        ArrayListTas areteDispo = new ArrayListTas(); //Aretes disponible a la selection a un instant t
+        ArrayList<Sommet> sommets = new ArrayList<>(); //contient les sommets du graph que l'on a explorer
+
+        sommets.add(listeSommets.get(4)); //selection d'un sommet, ici le 5eme
+
+        int i = 0;
+
+        pushAreteTas(sommets.get(i), areteDispo); //ajoute la liste des  aretes d'un sommet dans notre tableau   On est sur le sommet i
+
+        while (aretesResultat.size() != listeSommets.size() - 1){
+
+            areteDispo.removeAll(aretesResultat); //on supprime les chemins deja selectionnées comme resultat
+
+            areteDispo.TriTas();
+            Arete areteSelect = (Arete) areteDispo.get(0);
+
+            if(!(trouverSommet(areteSelect.getSommet1(), sommets) && trouverSommet(areteSelect.getSommet2(), sommets))){
+                aretesResultat.add(areteSelect);
+                if(trouverSommet(areteSelect.getSommet1(), sommets)){
+                    sommets.add(areteSelect.getSommet2());
+                }else{
+                    sommets.add(areteSelect.getSommet1());
+                }
+                areteDispo.remove(0);
+
+                if(i != listeSommets.size()){  //Si on a pas encore ajouter tout les sommets
+                    i += 1;
+                    pushAreteTas(sommets.get(i), areteDispo); //ajoute la liste des aretes d'un sommet dans notre tableau   On est sur le sommet i
+                }
+
+            }else{
+                areteDispo.remove(0);
+            }
+        }
+        return aretesResultat;
+
+    }
+
     /*---------- FIN FONCTIONS DE TRI -------*/
 
 
@@ -195,18 +302,14 @@ public class Graph{
         Sommet sommet8  = new Sommet(8);
         Sommet sommet19 = new Sommet(19);
         Sommet sommet15 = new Sommet(15);
-        Sommet sommet12 = new Sommet(12);
-        Sommet sommet32 = new Sommet(32);
-        Sommet sommet42 = new Sommet(42);
+
 
         graphe.addSommet(sommet5);
         graphe.addSommet(sommet6);
         graphe.addSommet(sommet8);
         graphe.addSommet(sommet19);
         graphe.addSommet(sommet15);
-        graphe.addSommet(sommet12);
-        graphe.addSommet(sommet32);
-        graphe.addSommet(sommet42);
+
 
         graphe.addArete(2 ,sommet19 ,sommet8);
         graphe.addArete(6 ,sommet19 ,sommet5);
@@ -215,19 +318,14 @@ public class Graph{
         graphe.addArete(14,sommet6  ,sommet5);
         graphe.addArete(16,sommet15 ,sommet6);
         graphe.addArete(1 ,sommet15 ,sommet19);
-        graphe.addArete(4 ,sommet32 ,sommet42);
-        graphe.addArete(19,sommet42 ,sommet19);
-        graphe.addArete(7 ,sommet12 ,sommet42);
-        graphe.addArete(13,sommet12 ,sommet8);
-        graphe.addArete(18,sommet32 ,sommet15);
-        graphe.addArete(18,sommet6 ,sommet42);
+
 
 
         ArrayList<Arete> resultat = new ArrayList<>();
 
         int choix;
 
-        System.out.println("Entrer votre choix: 0 pour Kruskal, 1 pour Prim, 2 pour afficher le graph brute: ");
+        System.out.println("Entrer votre choix: 0 pour Kruskal, 1 pour Prim, 2 pour prim tas et 3 pour afficher le graph brut2: ");
         Scanner sc = new Scanner(System.in);
         choix = sc.nextInt();
 
@@ -241,6 +339,10 @@ public class Graph{
                 break;
 
             case 2:
+                resultat = graphe.algoDePrimParTas();
+                break;
+
+            case 3:
                 resultat = graphe.listeAretes;
                 break;
 
