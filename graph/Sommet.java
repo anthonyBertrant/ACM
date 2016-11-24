@@ -10,6 +10,8 @@ import java.util.ArrayList;
 public class Sommet {
 
     private int nomSommet;
+    int coordX;
+    int coordY;
     private ArrayList<Arete> listeAretes = new ArrayList();
 
     /** Creer un sommet de nom nomSommet
