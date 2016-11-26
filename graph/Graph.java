@@ -19,6 +19,20 @@ public class Graph{
     private void addSommet(Sommet sommet){
         listeSommets.add(sommet);
     }
+    
+    private void creerNuageDePoint(ArrayList<Sommet> sommets) {
+        this.listeSommets = sommets;
+        int dx, dy, distance;
+        for (int i = 0; i < listeSommets.size() - 2; ++i) {
+            for (int j = i + 1; j < listeSommets.size() - 1; ++j) {
+                dx = Maths.abs( listeSommets.get(i).getX() - listeSommets.get(j).getX() );
+                dy = Maths.abs( listeSommets.get(i).getY() - listeSommets.get(j).getY() );
+                distance = Maths.sqrt( dx * dx + dy * dy );
+                Arete arete = new Arete(distance, listeSommets.get(i), listeSommets.get(j));
+                this.listeAretes.add(arete);
+            }
+        }
+    }
 
     private void addArete(int poids, Sommet sommet1, Sommet sommet2){
         listeAretes.add(new Arete(poids, sommet1, sommet2));
