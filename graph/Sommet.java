@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class Sommet {
 
     private int nomSommet;
-    int coordX;
+	int coordX;
     int coordY;
     private ArrayList<Arete> listeAretes = new ArrayList();
 
@@ -20,8 +20,8 @@ public class Sommet {
     public Sommet(int nomSommet) {
         this.nomSommet = nomSommet;
     }
-    
-    public Sommet(int nomSommet, int coordX, int coordY) {
+	
+	public Sommet(int nomSommet, int coordX, int coordY) {
         this.nomSommet = nomSommet;
         this.coordX = coordX;
         this.coordY = coordY;
@@ -30,8 +30,8 @@ public class Sommet {
     public int getNomSommet() {
         return nomSommet;
     }
-    
-    public int getX() {
+	
+	public int getX() {
         return coordX;
     }
     
