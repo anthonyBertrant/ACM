@@ -10,6 +10,8 @@ import java.util.ArrayList;
 public class Sommet {
 
     private int nomSommet;
+	int coordX;
+    int coordY;
     private ArrayList<Arete> listeAretes = new ArrayList();
 
     /** Creer un sommet de nom nomSommet
@@ -18,9 +20,23 @@ public class Sommet {
     public Sommet(int nomSommet) {
         this.nomSommet = nomSommet;
     }
+	
+	public Sommet(int nomSommet, int coordX, int coordY) {
+        this.nomSommet = nomSommet;
+        this.coordX = coordX;
+        this.coordY = coordY;
+    }
 
     public int getNomSommet() {
         return nomSommet;
+    }
+	
+	public int getX() {
+        return coordX;
+    }
+    
+    public int getY() {
+        return coordY;
     }
 
     public ArrayList<Arete> getListAretes() {

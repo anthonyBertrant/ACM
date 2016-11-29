@@ -29,7 +29,7 @@ public class Arete {
         sommet2.setArete(this);
     }
 
-    /*public Arete findLittlestArete(ArrayList<Arete> aretes) {
+    public Arete findLittlestArete(ArrayList<Arete> aretes) {
         Arete areteResult = aretes.get(0);
         for (int i = 1; i < aretes.size() - 1; ++i) {
             if (areteResult.getPoids() > aretes.get(i).getPoids()) {
@@ -37,7 +37,7 @@ public class Arete {
             }
         }
         return areteResult;
-    }*/
+    }
 
     public int getPoids() {
         return poids;
@@ -64,7 +64,7 @@ public class Arete {
 
     @Override
     public String toString() {
-        return sommet1.toString() +" "+ sommet2.toString() ;
+        return sommet1.toString() + sommet2.toString() ;
     }
 
     public String toStringPoid(){

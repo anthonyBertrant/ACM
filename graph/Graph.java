@@ -3,7 +3,10 @@ package graph;
 import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.SingleGraph;
 
+import java.awt.*;
 import java.util.ArrayList;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 import java.util.Scanner;
 
 import static java.util.Collections.swap;
@@ -77,6 +80,20 @@ public class Graph{
 
     private void addSommet(Sommet sommet){
         listeSommets.add(sommet);
+    }
+	
+	private void creerNuageDePoints(ArrayList<Sommet> sommets) {
+        this.listeSommets = sommets;
+        this.listeAretes = new ArrayList<Arete>();
+        int dx, dy, distance;
+        for (int i = 0; i < listeSommets.size() - 1; ++i) {
+            for (int j = i + 1; j < listeSommets.size(); ++j) {
+                dx = Math.abs( listeSommets.get(i).getX() - listeSommets.get(j).getX() );
+                dy = Math.abs( listeSommets.get(i).getY() - listeSommets.get(j).getY() );
+                distance = (int) Math.sqrt( dx * dx + dy * dy );
+                addArete(distance, listeSommets.get(i), listeSommets.get(j));
+            }
+        }
     }
 
     private void addArete(int poids, Sommet sommet1, Sommet sommet2){
@@ -190,6 +207,41 @@ public class Graph{
             System.out.println(listeAretes.get(i).toString());
         }
     }
+	
+	public void afficherNuageDePoints() {
+        JPanel p = new JPanel() {
+            public void paintComponent(Graphics g) {
+                for (Arete a : listeAretes) {
+                    g.setColor(Color.black);
+                    g.drawString(a.getSommet1().toString(),
+                                 a.getSommet1().getX() - 6,
+                                 a.getSommet1().getY() - 6);
+                    g.fillOval(a.getSommet1().getX() - 3,
+                               a.getSommet1().getY() - 3, 6, 6);
+                    g.drawString(a.getSommet2().toString(),
+                                 a.getSommet2().getX() - 6,
+                                 a.getSommet2().getY() - 6);
+                    g.fillOval(a.getSommet2().getX() - 3,
+                               a.getSommet2().getY() - 3, 6, 6);
+                    g.drawLine(a.getSommet1().getX(),
+                               a.getSommet1().getY(),
+                               a.getSommet2().getX(),
+                               a.getSommet2().getY());
+                    g.drawString(a.toStringPoid(),
+                                 Math.min(a.getSommet1().getX(), a.getSommet2().getX()) +
+                                    Math.abs(a.getSommet1().getX() - a.getSommet2().getX()) / 2,
+                                 Math.min(a.getSommet1().getY(), a.getSommet2().getY()) +
+                                    Math.abs(a.getSommet1().getY() - a.getSommet2().getY()) / 2);
+                }
+            }
+        };
+
+        JFrame window = new JFrame();
+        window.add(p);
+        window.setPreferredSize(new Dimension(1024, 680));
+        window.pack();
+        window.setVisible(true);
+    }
 
     /*---------- FONCTIONS DE TRI ----------*/
 
@@ -209,6 +261,57 @@ public class Graph{
             }
             aretes.remove(areteTest); //On la supprime des aretes disponibles
         }
+        return aretesResultat;
+    }
+	
+    private int Find(int peres[], int x) {
+        if (peres[x] == x) return x;
+        return Find(peres, peres[x]);
+    }
+    
+    private int Union(int peres[], int hauteurs[], int x, int y) {
+        int xPere = Find(peres, x);
+        int yPere = Find(peres, y);
+        
+        if (xPere == yPere) return 0;
+        
+        if (hauteurs[xPere] < hauteurs[yPere])
+            peres[xPere] = yPere;
+        else if (hauteurs[xPere] == hauteurs[yPere]) {
+            peres[xPere] = yPere;
+            hauteurs[yPere]++;
+        }
+        else
+            peres[yPere] = xPere;
+        
+        return 1;
+    }
+    
+    public ArrayList<Arete> algoDeKruskalUnionFind(){
+        ArrayList<Arete> aretes = this.listeAretes;
+        ArrayList<Arete> aretesResultat = new ArrayList<>();
+
+        int peres[] = new int[listeSommets.size() + 1];
+        int hauteurs[] = new int[listeSommets.size() + 1];
+        peres[0] = 0;
+        for (int i = 0; i < listeSommets.size(); ++i) {
+            peres[i+1] = listeSommets.get(i).getNomSommet();
+            hauteurs[i] = 0;
+        }
+        
+        Arete areteTest;
+
+        int i = 0;
+        while (i < listeSommets.size() - 1){ //Le nombre d'arete doit etre de nbSommet - 1
+            areteTest = trouverLaPlusPetiteArete(aretes);
+
+            if (Union(peres, hauteurs, areteTest.getSommet1().getNomSommet(), areteTest.getSommet2().getNomSommet()) > 0) {
+                aretesResultat.add(areteTest);
+                ++i;
+            }
+            aretes.remove(areteTest); //On la supprime des aretes disponibles
+        }
+        
         return aretesResultat;
     }
 
@@ -295,13 +398,14 @@ public class Graph{
 
 
     public static void main(String[] args){
+
         Graph graphe = new Graph();
 
-        Sommet sommet5  = new Sommet(5);
-        Sommet sommet6  = new Sommet(6);
-        Sommet sommet8  = new Sommet(8);
-        Sommet sommet19 = new Sommet(19);
-        Sommet sommet15 = new Sommet(15);
+        Sommet sommet5  = new Sommet(1);
+        Sommet sommet6  = new Sommet(2);
+        Sommet sommet8  = new Sommet(3);
+        Sommet sommet19 = new Sommet(4);
+        Sommet sommet15 = new Sommet(5);
 
 
         graphe.addSommet(sommet5);
@@ -321,40 +425,88 @@ public class Graph{
 
 
 
+		//---------- CREATION NUAGE DE POINTS -------
+
+		Graph grapheNuage = new Graph();
+
+        Sommet s1 = new Sommet(1, 200, 50);
+        Sommet s2 = new Sommet(2, 150, 262);
+        Sommet s3 = new Sommet(3, 100, 120);
+        Sommet s4 = new Sommet(4, 315, 568);
+        Sommet s5 = new Sommet(5, 864, 128);
+        Sommet s6 = new Sommet(6, 358, 26);
+        Sommet s7 = new Sommet(7, 432, 685);
+
+        ArrayList<Sommet> sommets = new ArrayList<Sommet> ();
+        sommets.add(s1);
+        sommets.add(s2);
+        sommets.add(s3);
+        sommets.add(s4);
+        sommets.add(s5);
+        sommets.add(s6);
+        sommets.add(s7);
+
+
         ArrayList<Arete> resultat = new ArrayList<>();
 
         int choix;
 
-        System.out.println("Entrer votre choix: 0 pour Kruskal, 1 pour Prim, 2 pour prim tas et 3 pour afficher le graph brut2: ");
+        System.out.println("Entrer votre choix: 0 pour Kruskal, 1 pour Kruskal Union-Find, 2 pour Prim, 3 pour prim tas et 4 pour afficher le graph brut2,");
+        System.out.println(" 5 pour le nuage de points:");
         Scanner sc = new Scanner(System.in);
         choix = sc.nextInt();
 
         switch(choix){
             case 0:
                 resultat = graphe.algoDeKruskal();
-                break;
+                for (Arete aResultat : resultat) {
+                    System.out.println(aResultat.toStringDev());
+                }
 
-            case 1:
-                resultat = graphe.algoDePrim();
+                graphe.genererGraph(resultat);
+                break;
+				
+			case 1:
+                resultat = graphe.algoDeKruskalUnionFind();
+                for (Arete aResultat : resultat) {
+                    System.out.println(aResultat.toStringDev());
+                }
+
+                graphe.genererGraph(resultat);
                 break;
 
             case 2:
-                resultat = graphe.algoDePrimParTas();
+                resultat = graphe.algoDePrim();
+                for (Arete aResultat : resultat) {
+                    System.out.println(aResultat.toStringDev());
+                }
+
+                graphe.genererGraph(resultat);
                 break;
 
             case 3:
+                resultat = graphe.algoDePrimParTas();
+                for (Arete aResultat : resultat) {
+                    System.out.println(aResultat.toStringDev());
+                }
+
+                graphe.genererGraph(resultat);
+                break;
+
+            case 4:
                 resultat = graphe.listeAretes;
+                break;
+
+            case 5:
+                grapheNuage.creerNuageDePoints(sommets);
+                grapheNuage.afficherNuageDePoints();
                 break;
 
             default:
                 break;
         }
 
-        for (Arete aResultat : resultat) {
-            System.out.println(aResultat.toStringDev());
-        }
 
-        graphe.genererGraph(resultat);
-
+		
     }
 }
